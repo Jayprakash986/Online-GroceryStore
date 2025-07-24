@@ -1,18 +1,65 @@
 "use client"
-import { ShoppingBasketIcon } from 'lucide-react'
-import React, { useState } from 'react'
+import { LoaderIcon, ShoppingBasketIcon } from 'lucide-react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ShoppingBasket } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import GlobalApi from '../_utils/GlobalApi'
+import { toast } from 'sonner'
+import { UpdateCartContext } from '../_context/UpdateCartContext'
 
 
 function ProductItemDetails({product}) {
 
-const [productTotalPrice,setProductTotalPrice] = useState
+const [productTotalPrice,setProductTotalPrice] = useState 
 (product?.sellingPrice ? (product?.sellingPrice) : (product?.mrp));
 const [quantity,setQuantity] = useState(1);
+const router = useRouter();
+const [isLoginin, setIsLoginin] = useState(false);
+const [jwt, setJwt] = useState(null);
+const [user, setUser] = useState(null);
 
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    const jwtToken = sessionStorage.getItem("jwt");
+    setIsLoginin(!!jwtToken);
+    setJwt(jwtToken);
+    const userData = sessionStorage.getItem("user");
+    setUser(userData ? JSON.parse(userData) : null);
+  }
+}, []);
 
+const {UpdateCart,setUpdateCart} = useContext(UpdateCartContext);
+const [loading,setLoading] = useState(false);
 
+const addToCart = () => {
+    setLoading(true);
+    if(!jwt) {
+        router.push('/sign-in');
+        setLoading(false);
+        return;
+    } 
+    const data = {
+  data: {
+    quantity: quantity,
+    amount: parseFloat(productTotalPrice * quantity).toFixed(2),
+    product: product.id,
+    users_permissions_user: user.id, 
+    userId: user.id
+  }
+};
+    console.log(data);
+    GlobalApi.addToCart(data,jwt)
+    .then(res => {
+        console.log(res.data);
+        toast("Product added to cart successfully");
+        setUpdateCart(!UpdateCart);
+        setLoading(false); 
+    })
+    .catch (e => {
+        toast("Error while adding to cart" + " " + e?.response?.data?.error?.message);
+    })
+}
   return (
     <div className='grid gap-1 grid-cols-2 md:grid-cols-2 p-2 md:gap-4 bg-white text-black'>
         <img 
@@ -40,7 +87,8 @@ const [quantity,setQuantity] = useState(1);
                 </div>
                 <h2>Total Price: ₹{quantity*productTotalPrice}</h2>
                 </div>
-                <Button className="flex gap-3 cursor-pointer"><ShoppingBasket/>Add to Cart</Button>
+                <Button onClick={() => addToCart()} className="flex gap-3 cursor-pointer"><ShoppingBasket/>
+               {loading ? <LoaderIcon/>: 'Add to Cart'}</Button>
             </div>
             <h2><span className='font-bold'>Category:</span>{product?.categories?.[0]?.name}</h2>         
         </div>

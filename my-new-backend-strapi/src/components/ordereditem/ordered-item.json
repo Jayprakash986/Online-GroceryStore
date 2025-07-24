@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_ordereditem_ordered_items",
+  "info": {
+    "displayName": "Ordered-item"
+  },
+  "options": {},
+  "attributes": {
+    "quantity": {
+      "type": "decimal"
+    },
+    "amount": {
+      "type": "decimal"
+    },
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    }
+  },
+  "config": {}
+}

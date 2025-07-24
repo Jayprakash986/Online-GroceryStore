@@ -13,7 +13,7 @@ import ProductItemDetails from './ProductItemDetails'
 
 
 function ProductList({product}) {
-  console.log(product);
+  // console.log(product);
   
   return (
     <div className='p-2 md:p-6 flex flex-col items-center justify-center border rounded-lg 
@@ -38,9 +38,10 @@ function ProductList({product}) {
   <DialogContent>
     <DialogHeader>
       <DialogDescription>
-        <ProductItemDetails product={product}/>
+        
       </DialogDescription>
     </DialogHeader>
+    <ProductItemDetails product={product}/>
   </DialogContent>
 </Dialog>
         
